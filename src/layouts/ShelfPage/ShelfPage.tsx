@@ -61,6 +61,7 @@ export const ShelfPage = () => {
             aria-labelledby='nav-history-tab'
           >
             {historyClick ? <HistoryPage /> : <></>}
+            Checkout history
           </div>
         </div>
       </div>
