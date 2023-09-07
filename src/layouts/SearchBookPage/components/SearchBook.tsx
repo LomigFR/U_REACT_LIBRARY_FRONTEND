@@ -50,10 +50,6 @@ export const SearchBook: React.FC<{ book: BookModel }> = props => {
             <h5 className='card-title'>{props.book.author}</h5>
             <h4>{props.book.title}</h4>
             <p className='card-text'>{props.book.description}</p>
-            <StarsReview
-              rating={4}
-              size={32}
-            />
           </div>
         </div>
         <div className='col-md-4 d-flex justify-content-center align-items-center'>

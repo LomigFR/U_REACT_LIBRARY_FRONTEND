@@ -196,7 +196,7 @@ export const SearchBookPage = () => {
                 <h5>Number of results: ({totalAmountOfBooks})</h5>
               </div>
               <p>
-                {indexOfFirstBook + 1} to {lastItem} of {totalAmountOfBooks}{' '}
+                {indexOfFirstBook + 1} to {lastItem} of {totalAmountOfBooks}
                 items:
               </p>
               {books.map(book => (
