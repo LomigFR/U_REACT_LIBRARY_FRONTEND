@@ -1,9 +1,9 @@
 import { useOktaAuth } from '@okta/okta-react'
-import { useEffect, useState } from 'react'
-import { SpinnerLoading } from '../Utils/SpinnerLoading'
 import { CardElement, useElements, useStripe } from '@stripe/react-stripe-js'
+import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import PaymentInfoRequest from '../../models/PaymentInfoRequest'
+import { SpinnerLoading } from '../Utils/SpinnerLoading'
 
 export const PaymentPage = () => {
   const { authState } = useOktaAuth()
@@ -16,6 +16,7 @@ export const PaymentPage = () => {
     const fetchFees = async () => {
       if (authState && authState.isAuthenticated) {
         const url = `${process.env.REACT_APP_API}/payments/search/findByUserEmail?userEmail=${authState.accessToken?.claims.sub}`
+
         const requestOptions = {
           method: 'GET',
           headers: { 'Content-Type': 'application/json' },
@@ -28,6 +29,7 @@ export const PaymentPage = () => {
         }
 
         const paymentResponseJson = await paymentResponse.json()
+
         setFees(paymentResponseJson.amount)
         setLoadingFees(false)
       }
@@ -92,7 +94,7 @@ export const PaymentPage = () => {
       .then(async (result: any) => {
         if (result.error) {
           setSubmitDisabled(false)
-          alert('There was an error!')
+          alert('There was an error')
         } else {
           const url = `https://localhost:8443/api/payment/secure/payment-complete`
           const requestOptions = {
@@ -102,16 +104,20 @@ export const PaymentPage = () => {
               'Content-Type': 'application/json',
             },
           }
+
           const stripeResponse = await fetch(url, requestOptions)
+
           if (!stripeResponse.ok) {
             setHttpError(true)
             setSubmitDisabled(false)
             throw new Error('Something went wrong!')
           }
+
           setFees(0)
           setSubmitDisabled(false)
         }
       })
+
     setHttpError(false)
   }
 
@@ -132,11 +138,10 @@ export const PaymentPage = () => {
       {fees > 0 && (
         <div className='card mt-3'>
           <h5 className='card-header'>
-            Fees pending:
-            <span className='text-danger'> ${fees}</span>
+            Fees pending: <span className='text-danger'>${fees}</span>
           </h5>
           <div className='card-body'>
-            <h5 className='card-title mb-3'>Credit card</h5>
+            <h5 className='card-title mb-3'>Credit Card</h5>
             <CardElement id='card-element' />
             <button
               disabled={submitDisabled}
@@ -158,10 +163,11 @@ export const PaymentPage = () => {
             className='btn main-color text-white'
             to='search'
           >
-            Explore top books.
+            Explore top books
           </Link>
         </div>
       )}
+
       {submitDisabled && <SpinnerLoading />}
     </div>
   )

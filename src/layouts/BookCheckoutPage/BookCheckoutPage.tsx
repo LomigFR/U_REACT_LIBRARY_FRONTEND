@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react'
 import BookModel from '../../models/BookModel'
+import ReviewModel from '../../models/ReviewModel'
 import { SpinnerLoading } from '../Utils/SpinnerLoading'
 import { StarsReview } from '../Utils/StarsReview'
 import { CheckoutAndReviewBox } from './CheckoutAndReviewBox'
-import ReviewModel from '../../models/ReviewModel'
 import { LatestReviews } from './LatestReviews'
 import { useOktaAuth } from '@okta/okta-react'
 import ReviewRequestModel from '../../models/ReviewRequestModel'
@@ -15,19 +15,20 @@ export const BookCheckoutPage = () => {
   const [isLoading, setIsLoading] = useState(true)
   const [httpError, setHttpError] = useState(null)
 
-  // Review state
+  // Review State
   const [reviews, setReviews] = useState<ReviewModel[]>([])
   const [totalStars, setTotalStars] = useState(0)
   const [isLoadingReview, setIsLoadingReview] = useState(true)
+
   const [isReviewLeft, setIsReviewLeft] = useState(false)
   const [isLoadingUserReview, setIsLoadingUserReview] = useState(true)
 
-  // Loans count state
+  // Loans Count State
   const [currentLoansCount, setCurrentLoansCount] = useState(0)
   const [isLoadingCurrentLoansCount, setIsLoadingCurrentLoansCount] =
     useState(true)
 
-  // Is book check out ?
+  // Is Book Check Out?
   const [isCheckedOut, setIsCheckedOut] = useState(false)
   const [isLoadingBookCheckedOut, setIsLoadingBookCheckedOut] = useState(true)
 
@@ -42,11 +43,15 @@ export const BookCheckoutPage = () => {
   useEffect(() => {
     const fetchBook = async () => {
       const baseUrl: string = `${process.env.REACT_APP_API}/books/${bookId}`
+
       const response = await fetch(baseUrl)
 
-      if (!response.ok) throw new Error('Something went wrong !')
+      if (!response.ok) {
+        throw new Error('Something went wrong!')
+      }
 
       const responseJson = await response.json()
+
       const loadedBook: BookModel = {
         id: responseJson.id,
         title: responseJson.title,
@@ -61,7 +66,6 @@ export const BookCheckoutPage = () => {
       setBook(loadedBook)
       setIsLoading(false)
     }
-
     fetchBook().catch((error: any) => {
       setIsLoading(false)
       setHttpError(error.message)
@@ -71,6 +75,7 @@ export const BookCheckoutPage = () => {
   useEffect(() => {
     const fetchBookReviews = async () => {
       const reviewUrl: string = `${process.env.REACT_APP_API}/reviews/search/findByBookId?bookId=${bookId}`
+
       const responseReviews = await fetch(reviewUrl)
 
       if (!responseReviews.ok) {
@@ -78,8 +83,11 @@ export const BookCheckoutPage = () => {
       }
 
       const responseJsonReviews = await responseReviews.json()
+
       const responseData = responseJsonReviews._embedded.reviews
+
       const loadedReviews: ReviewModel[] = []
+
       let weightedStarReviews: number = 0
 
       for (const key in responseData) {
@@ -91,7 +99,6 @@ export const BookCheckoutPage = () => {
           book_id: responseData[key].bookId,
           reviewDescription: responseData[key].reviewDescription,
         })
-
         weightedStarReviews = weightedStarReviews + responseData[key].rating
       }
 
@@ -125,15 +132,13 @@ export const BookCheckoutPage = () => {
         }
         const userReview = await fetch(url, requestOptions)
         if (!userReview.ok) {
-          throw new Error('Something went wrong!')
+          throw new Error('Something went wrong')
         }
-
         const userReviewResponseJson = await userReview.json()
         setIsReviewLeft(userReviewResponseJson)
       }
       setIsLoadingUserReview(false)
     }
-
     fetchUserReviewBook().catch((error: any) => {
       setIsLoadingUserReview(false)
       setHttpError(error.message)
@@ -159,7 +164,6 @@ export const BookCheckoutPage = () => {
           await currentLoansCountResponse.json()
         setCurrentLoansCount(currentLoansCountResponseJson)
       }
-
       setIsLoadingCurrentLoansCount(false)
     }
     fetchUserCurrentLoansCount().catch((error: any) => {
@@ -190,19 +194,11 @@ export const BookCheckoutPage = () => {
       }
       setIsLoadingBookCheckedOut(false)
     }
-
     fetchUserCheckedOutBook().catch((error: any) => {
       setIsLoadingBookCheckedOut(false)
       setHttpError(error.message)
     })
   }, [authState])
-
-  if (httpError)
-    return (
-      <div className='container m-5'>
-        <p>{httpError}</p>
-      </div>
-    )
 
   if (
     isLoading ||
@@ -210,15 +206,20 @@ export const BookCheckoutPage = () => {
     isLoadingCurrentLoansCount ||
     isLoadingBookCheckedOut ||
     isLoadingUserReview
-  )
+  ) {
+    return <SpinnerLoading />
+  }
+
+  if (httpError) {
     return (
       <div className='container m-5'>
-        <SpinnerLoading />
+        <p>{httpError}</p>
       </div>
     )
+  }
 
   const checkoutBook = async () => {
-    const url = `${process.env.REACT_APP_API}/books/secure/checkout/?bookId=${bookId}`
+    const url = `${process.env.REACT_APP_API}/books/secure/checkout/?bookId=${book?.id}`
     const requestOptions = {
       method: 'PUT',
       headers: {
@@ -226,11 +227,11 @@ export const BookCheckoutPage = () => {
         'Content-Type': 'application/json',
       },
     }
-    const checkoutResponse = await fetch(url, requestOptions)
 
     /**
      * This is triggered if an exception is raised from the backend.
      */
+    const checkoutResponse = await fetch(url, requestOptions)
     if (!checkoutResponse.ok) {
       setDisplayError(true)
       throw new Error('Something went wrong!')
@@ -250,7 +251,6 @@ export const BookCheckoutPage = () => {
       bookId,
       reviewDescription
     )
-
     const url = `${process.env.REACT_APP_API}/reviews/secure`
     const requestOptions = {
       method: 'POST',
@@ -334,7 +334,7 @@ export const BookCheckoutPage = () => {
             Please pay outstanding fees and/or return late book(s).
           </div>
         )}
-        <div className='d-flex justify-content-center align-items-center'>
+        <div className='d-flex justify-content-center alighn-items-center'>
           {book?.img ? (
             <img
               src={book?.img}
@@ -376,7 +376,7 @@ export const BookCheckoutPage = () => {
         <LatestReviews
           reviews={reviews}
           bookId={book?.id}
-          mobile={false}
+          mobile={true}
         />
       </div>
     </div>
